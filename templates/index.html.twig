@@ -3,5 +3,5 @@
 {% block title %}map{% endblock %}
 
 {% block body %}
-    <div id="mapid" data-farmer="{{ [farmer.firstName, farmer.city.lat, farmer.city.long]|json_encode }}"></div>
+    <div id="map" data-farmer="{{ [farmer.firstName, farmer.city.lat, farmer.city.long]|json_encode }}"></div>
 {% endblock %}

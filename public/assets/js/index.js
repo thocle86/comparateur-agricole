@@ -10,12 +10,15 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
 }).addTo(mymap);
 */
 
+const mapDiv = document.querySelector('#mapid');
+const farmer = JSON.parse(mapDiv.dataset.farmer);
+
 var map = L.map('mapid').setView([46.194671, 1.845875], 7);
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
-L.marker([46.194671, 1.845875]).addTo(map)
-    .bindPopup('A pretty CSS3 popup.<br> Easily customizable.')
+L.marker([farmer[1], farmer[2]]).addTo(map)
+    .bindPopup(farmer[0])
     .openPopup();

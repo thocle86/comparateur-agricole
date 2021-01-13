@@ -1,0 +1,7 @@
+body {
+    background-color: yellow;
+}
+#mapid {
+    height: 100vh;
+    border: solid 1vw blue;
+}

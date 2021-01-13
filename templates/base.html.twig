@@ -3,10 +3,16 @@
     <head>
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
+        {% block stylesheets %}
+            <link rel="stylesheet" href="/assets/leaflet/leaflet.css"/>
+            <link rel="stylesheet" href="/assets/styles/index.css">
+        {% endblock %}
     </head>
     <body>
         {% block body %}{% endblock %}
-        {% block javascripts %}{% endblock %}
+        {% block javascripts %}
+            <script src="/assets/leaflet/leaflet.js"></script>
+            <script src="/assets/js/index.js"></script>
+        {% endblock %}
     </body>
 </html>

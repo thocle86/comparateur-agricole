@@ -17,8 +17,13 @@ class MapController extends AbstractController
      */
     public function index(FarmersRepository $farmersRepo): Response
     {
-        $farmer = $farmersRepo->findOneBy(['id' => 1]);
+        $farmers = $farmersRepo->findAll();
+        $coord = [];
 
-        return $this->render("index.html.twig", ['farmer' => $farmer]);
+        for ($i = 0; $i < 20; $i++) {
+            $coord[] = [$farmers[$i]->getCity()->getCity(), $farmers[$i]->getCity()->getLat(), $farmers[$i]->getCity()->getLong()];
+        }
+
+        return $this->render("index.html.twig", ['coord' => $coord]);
     }
 }

@@ -35,16 +35,16 @@ class MapController extends AbstractController
             $results[$i]['zipcode'] = $results[$i]['zipcode'][0].$results[$i]['zipcode'][1];
         }
 
-        $departements = [];
+        $departments = [];
 
         for ($i = 0; $i < count($results); $i++) {
-            if (key_exists($results[$i]['zipcode'], $departements)) {
-                $departements[$results[$i]['zipcode']] += $results[$i]['nbFarmers'];
+            if (key_exists($results[$i]['zipcode'], $departments)) {
+                $departments[$results[$i]['zipcode']] += $results[$i]['nbFarmers'];
             } else {
-                $departements[$results[$i]['zipcode']] = $results[$i]['nbFarmers'];
+                $departments[$results[$i]['zipcode']] = $results[$i]['nbFarmers'];
             }
         }
 
-        return $this->render("index.html.twig", ['departements' => $departements]);
+        return $this->render("index.html.twig", ['departments' => $departments]);
     }
 }

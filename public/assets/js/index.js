@@ -1,16 +1,16 @@
 const mapDiv = document.querySelector('#map');
-const departements = JSON.parse(mapDiv.dataset.departements);
+const departments = JSON.parse(mapDiv.dataset.departments);
 
 //Configuration  de l'API mapBox
 const mapboxUrl = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}';
 const mapboxAttribution = 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
 const mapboxToken = 'pk.eyJ1IjoidGhvY2xlODYiLCJhIjoiY2tqdmtwdXFoMDV2NjJ1bWxkZG5zOHBsdCJ9.8owfFU7n_mytVoybDByojw';
 
-for (const index in departements) {
+for (const index in departments) {
     fetch('https://geo.api.gouv.fr/communes?codePostal='+index+'000&fields=code,nom,centre,departement')
         .then(res => res.json())
         .then(data => {L.marker([data[0].centre.coordinates[1], data[0].centre.coordinates[0]]).addTo(map)
-            .bindPopup('En '+data[0].departement.nom+', '+departements[index]+' agriculteurs nous font déjà confiance !')
+            .bindPopup('En '+data[0].departement.nom+', '+departments[index]+' agriculteurs nous font déjà confiance !')
             .openPopup();})
         .catch(err => { throw err });
 }

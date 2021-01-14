@@ -6,3 +6,13 @@ html, body, #map {
     height: 100%;
     width: 100vw;
 }
+
+#map {
+    position: relative;
+}
+.buttons {
+    position: absolute;
+    bottom: 5vw;
+    right: 5vw;
+    z-index: 1000;
+}

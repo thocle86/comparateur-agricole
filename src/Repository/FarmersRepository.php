@@ -19,32 +19,23 @@ class FarmersRepository extends ServiceEntityRepository
         parent::__construct($registry, Farmers::class);
     }
 
-    // /**
-    //  * @return Farmers[] Returns an array of Farmers objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findNbFarmersPerCity()
     {
-        return $this->createQueryBuilder('f')
-            ->andWhere('f.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('f.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
+        $queryBuilder = $this->createQueryBuilder('f')
+        ->select('cities.zipcode, COUNT(f.id) as nbFarmers')
+        /*->where('cities.zipcode LIKE :dep')*/
+        ->join('f.city', 'cities')
+        ->groupBy('cities.zipcode')
+        /*->setParameter('dep', '37%')*/
+        ->getQuery();
+        /*$queryBuilder = $this->createQueryBuilder('p')
+        ->where('p.title LIKE :name')
+        ->orWhere('actors.name LIKE :name')
+        ->join('p.actors', 'actors')
+        ->setParameter('name', '%' . $name . '%')
+        ->orderBy('p.title', 'ASC')
+        ->getQuery();*/
 
-    /*
-    public function findOneBySomeField($value): ?Farmers
-    {
-        return $this->createQueryBuilder('f')
-            ->andWhere('f.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        return $queryBuilder->getResult();
     }
-    */
 }

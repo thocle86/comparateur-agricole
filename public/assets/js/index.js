@@ -1,19 +1,18 @@
-const mapDiv = document.querySelector('#map');
-const departments = JSON.parse(mapDiv.dataset.departments);
-
 //Configuration  de l'API mapBox
 const mapboxUrl = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}';
 const mapboxAttribution = 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
 const mapboxToken = 'pk.eyJ1IjoidGhvY2xlODYiLCJhIjoiY2tqdmtwdXFoMDV2NjJ1bWxkZG5zOHBsdCJ9.8owfFU7n_mytVoybDByojw';
 
-for (const index in departments) {
-    fetch('https://geo.api.gouv.fr/communes?codePostal='+index+'000&fields=code,nom,centre,departement')
-        .then(res => res.json())
-        .then(data => {L.marker([data[0].centre.coordinates[1], data[0].centre.coordinates[0]]).addTo(map)
-            .bindPopup('En '+data[0].departement.nom+', '+departments[index]+' agriculteurs nous font déjà confiance !')
-            .openPopup();})
-        .catch(err => { throw err });
-}
+const myLayer = new L.layerGroup();
+
+var comparateurAgricoleIcon = L.icon({
+    iconUrl: '/assets/images/comparateur_agricole_icon.png',
+    iconSize: [38, 45],});
+
+//change the farmer icon display on map
+var farmerIcon = L.icon({
+    iconUrl: '/assets/images/farmer_icon.png',
+    iconSize: [38, 38],});
 
 //Calque par défaut
 let mapDefault = L.tileLayer(mapboxUrl,
@@ -76,15 +75,32 @@ let cities = L.layerGroup([littleton, denver, aurora, golden]);
 let map = L.map('map',
     {
         center: [48.474968, 1.5363024], //centrage de la vue sur comparateur agricole à l'ouverture de la carte
-        zoom: 10,
+        zoom: 8,
         layers: [mapDefault, cities]
     }
 );
 
+map.on('zoomend', function(ev){
+    const mapDiv = document.querySelector('#map');
+    const departments = JSON.parse(mapDiv.dataset.departments);
+    
+    if (map.getZoom() > 8.5) {
+        myLayer.addTo(map);
+        for (const index in departments) {
+            fetch('https://geo.api.gouv.fr/communes?codePostal='+index+'000&fields=code,nom,centre,departement')
+                .then(res => res.json())
+                .then(data => {L.marker([data[0].centre.coordinates[1], data[0].centre.coordinates[0]], {icon: farmerIcon}).addTo(myLayer)
+                    .bindPopup(departments[index]+' agriculteurs nous font déjà confiance en '+data[0].departement.nom+' !');})
+                .catch(err => { throw err });
+        }
+    } else if (map.getZoom() <= 8.5) {
+      map.removeLayer(myLayer);
+    }
+});
+
 //Pointeur sur comparateur agricole
-L.marker([48.4474968, 1.5363024]).addTo(map)
-    .bindPopup('Comparateur<br>Agricole.com')
-    .openPopup();
+L.marker([48.4474968, 1.5363024], {icon: comparateurAgricoleIcon}).addTo(map)
+    .bindPopup('Comparateur<br>Agricole.com');
 
 //Fonction pour recentrer sur comparateur agricole
 comparateurAgricole.addEventListener('click', function() {

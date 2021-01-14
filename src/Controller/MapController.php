@@ -17,13 +17,34 @@ class MapController extends AbstractController
      */
     public function index(FarmersRepository $farmersRepo): Response
     {
-        $farmers = $farmersRepo->findAll();
+        /*$farmers = $farmersRepo->findAll();
         $coord = [];
 
         for ($i = 0; $i < 20; $i++) {
             $coord[] = [$farmers[$i]->getCity()->getCity(), $farmers[$i]->getCity()->getLat(), $farmers[$i]->getCity()->getLong()];
+        }*/
+
+        $results = $farmersRepo->findNbFarmersPerCity();
+        /*$departement = $departement[1] . '000';*/
+
+        for ($i = 0; $i < count($results); $i++) {
+            if (strlen($results[$i]['zipcode']) != 5) {
+                $results[$i]['zipcode'] = 0 . $results[$i]['zipcode'];
+            }
+
+            $results[$i]['zipcode'] = $results[$i]['zipcode'][0].$results[$i]['zipcode'][1];
         }
 
-        return $this->render("index.html.twig", ['coord' => $coord]);
+        $departements = [];
+
+        for ($i = 0; $i < count($results); $i++) {
+            if (key_exists($results[$i]['zipcode'], $departements)) {
+                $departements[$results[$i]['zipcode']] += $results[$i]['nbFarmers'];
+            } else {
+                $departements[$results[$i]['zipcode']] = $results[$i]['nbFarmers'];
+            }
+        }
+
+        return $this->render("index.html.twig", ['departements' => $departements]);
     }
 }

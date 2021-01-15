@@ -17,15 +17,7 @@ class MapController extends AbstractController
      */
     public function index(FarmersRepository $farmersRepo): Response
     {
-        /*$farmers = $farmersRepo->findAll();
-        $coord = [];
-
-        for ($i = 0; $i < 20; $i++) {
-            $coord[] = [$farmers[$i]->getCity()->getCity(), $farmers[$i]->getCity()->getLat(), $farmers[$i]->getCity()->getLong()];
-        }*/
-
         $results = $farmersRepo->findNbFarmersPerCity();
-        /*$departement = $departement[1] . '000';*/
 
         for ($i = 0; $i < count($results); $i++) {
             if (strlen($results[$i]['zipcode']) != 5) {
@@ -44,7 +36,22 @@ class MapController extends AbstractController
                 $departments[$results[$i]['zipcode']] = $results[$i]['nbFarmers'];
             }
         }
-
+        
         return $this->render("index.html.twig", ['departments' => $departments]);
+    }
+
+    /**
+     * @Route("/farmers", name="farmers")
+     */
+    public function getFarmers(FarmersRepository $farmersRepo): Response
+    {
+        $farmers = $farmersRepo->findAllGroupByCity();
+        $coord = [];
+
+        for ($i = 0; $i < count($farmers); $i++) {
+            
+        }
+
+        return $this->json($coord, 200);
     }
 }

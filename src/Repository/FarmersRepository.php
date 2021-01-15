@@ -23,18 +23,20 @@ class FarmersRepository extends ServiceEntityRepository
     {
         $queryBuilder = $this->createQueryBuilder('f')
         ->select('cities.zipcode, COUNT(f.id) as nbFarmers')
-        /*->where('cities.zipcode LIKE :dep')*/
         ->join('f.city', 'cities')
         ->groupBy('cities.zipcode')
-        /*->setParameter('dep', '37%')*/
         ->getQuery();
-        /*$queryBuilder = $this->createQueryBuilder('p')
-        ->where('p.title LIKE :name')
-        ->orWhere('actors.name LIKE :name')
-        ->join('p.actors', 'actors')
-        ->setParameter('name', '%' . $name . '%')
-        ->orderBy('p.title', 'ASC')
-        ->getQuery();*/
+
+        return $queryBuilder->getResult();
+    }
+
+    public function findAllGroupByCity()
+    {
+        $queryBuilder = $this->createQueryBuilder('f')
+        ->select('cities.zipcode, cities.lat, cities.long')
+        ->join('f.city', 'cities')
+        ->groupBy('cities.zipcode, cities.lat, cities.long')
+        ->getQuery();
 
         return $queryBuilder->getResult();
     }

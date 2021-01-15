@@ -7,6 +7,24 @@ const mapboxAttribution = 'Map data &copy; <a href="https://www.openstreetmap.or
 const mapboxToken = 'pk.eyJ1IjoidGhvY2xlODYiLCJhIjoiY2tqdmtwdXFoMDV2NjJ1bWxkZG5zOHBsdCJ9.8owfFU7n_mytVoybDByojw';
 /***Configuration  de l'API mapBox___end***/
 
+const departmentsLayer = new L.layerGroup();
+const farmersLayer = new L.layerGroup();
+
+//comparateur agricole icon settings
+var comparateurAgricoleIcon = L.icon({
+    iconUrl: '/assets/images/comparateur_agricole_icon.png',
+    iconSize: [34, 45],});
+
+//departments icon settings
+var departmentIcon = L.icon({
+    iconUrl: '/assets/images/farm_icon.png',
+    iconSize: [38, 38],});
+
+//farmers icon settings
+var farmersIcon = L.icon({
+    iconUrl: '/assets/images/farmer_icon.png',
+    iconSize: [38, 38],});
+
 /***Configuration des calques___start***/
 //Calque par défaut
 let mapDefault = L.tileLayer(mapboxUrl,
@@ -218,12 +236,42 @@ legend.onAdd = function (map) {
 
 legend.addTo(map);
 
+map.on('zoomend', function(ev){
+    const mapDiv = document.querySelector('#map');
+    const departments = JSON.parse(mapDiv.dataset.departments);
+    
+    if (map.getZoom() > 8.5 && !map.hasLayer(farmersLayer)) {
+        map.removeLayer(departmentsLayer);
+        farmersLayer.addTo(map);
 
+            /*fetch('/farmers')
+                .then(res => res.json())
+                .then(data => {
+                    for (let i = 0; i < data.length; i++) {
+                        L.marker([data[i][1], data[i][2]], {icon: farmersIcon}).addTo(farmersLayer)
+                        .bindPopup(data[i][0]);
+                    }
+                })
+                .catch(err => { throw err });*/
+    } else if (map.getZoom() > 6.5 && !map.hasLayer(departmentsLayer)) {
+        map.removeLayer(farmersLayer);
+        departmentsLayer.addTo(map);
+
+        for (const index in departments) {
+            fetch('https://geo.api.gouv.fr/communes?codePostal='+index+'000&fields=code,nom,centre,departement')
+                .then(res => res.json())
+                .then(data => {L.marker([data[0].centre.coordinates[1], data[0].centre.coordinates[0]], {icon: departmentIcon}).addTo(departmentsLayer)
+                    .bindPopup(departments[index]+' agriculteurs nous font déjà confiance en '+data[0].departement.nom+' !');})
+                .catch(err => { throw err });
+        }
+    } else if (map.getZoom() <= 6) {
+        map.removeLayer(departmentsLayer);
+    }
+});
 
 //Pointeur sur comparateur agricole
-L.marker([48.4474968, 1.5363024]).addTo(map)
-    .bindPopup('Comparateur<br>Agricole.com')
-    .openPopup();
+L.marker([48.4474968, 1.5363024], {icon: comparateurAgricoleIcon}).addTo(map)
+    .bindPopup('Comparateur<br>Agricole.com');
 
 //Fonction pour recentrer sur comparateur agricole
 comparateurAgricole.addEventListener('click', function() {
@@ -263,3 +311,4 @@ myLocate.addEventListener('click', function() {
     map.on('locationerror', onLocationError);
 });
 /***Fonction de localisation___end***/
+

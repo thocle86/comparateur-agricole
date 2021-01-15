@@ -30,12 +30,13 @@ class FarmersRepository extends ServiceEntityRepository
         return $queryBuilder->getResult();
     }
 
-    public function findAllGroupByCity()
+    public function findAllByDepartment(int $dep)
     {
         $queryBuilder = $this->createQueryBuilder('f')
         ->select('cities.zipcode, cities.lat, cities.long')
+        ->where('cities.zipcode LIKE :dep')
         ->join('f.city', 'cities')
-        ->groupBy('cities.zipcode, cities.lat, cities.long')
+        ->setParameter('dep', $dep . '%')
         ->getQuery();
 
         return $queryBuilder->getResult();

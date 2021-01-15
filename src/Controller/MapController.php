@@ -52,7 +52,7 @@ class MapController extends AbstractController
             $nameBuyers = $value->GetName();
         }
         
-        return $this->render("test.html.twig", [
+        return $this->render("index.html.twig", [
             'departments' => $departments,
             ]);
     }

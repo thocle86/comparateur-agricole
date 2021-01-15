@@ -170,6 +170,3 @@ for (const index in departments) {
         .catch(err => { throw err });
 }
 
-L.marker([48.4474968, 1.5363024]).addTo(map)
-    .bindPopup('Comparateur<br>Agricole.com')
-    .openPopup();

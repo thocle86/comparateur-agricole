@@ -3,14 +3,21 @@ const mapboxUrl = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?acces
 const mapboxAttribution = 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
 const mapboxToken = 'pk.eyJ1IjoidGhvY2xlODYiLCJhIjoiY2tqdmtwdXFoMDV2NjJ1bWxkZG5zOHBsdCJ9.8owfFU7n_mytVoybDByojw';
 
-const myLayer = new L.layerGroup();
+const departmentsLayer = new L.layerGroup();
+const farmersLayer = new L.layerGroup();
 
+//comparateur agricole icon settings
 var comparateurAgricoleIcon = L.icon({
     iconUrl: '/assets/images/comparateur_agricole_icon.png',
-    iconSize: [38, 45],});
+    iconSize: [34, 45],});
 
-//change the farmer icon display on map
-var farmerIcon = L.icon({
+//departments icon settings
+var departmentIcon = L.icon({
+    iconUrl: '/assets/images/farm_icon.png',
+    iconSize: [38, 38],});
+
+//farmers icon settings
+var farmersIcon = L.icon({
     iconUrl: '/assets/images/farmer_icon.png',
     iconSize: [38, 38],});
 
@@ -75,7 +82,7 @@ let cities = L.layerGroup([littleton, denver, aurora, golden]);
 let map = L.map('map',
     {
         center: [48.474968, 1.5363024], //centrage de la vue sur comparateur agricole à l'ouverture de la carte
-        zoom: 8,
+        zoom: 6,
         layers: [mapDefault, cities]
     }
 );
@@ -84,17 +91,32 @@ map.on('zoomend', function(ev){
     const mapDiv = document.querySelector('#map');
     const departments = JSON.parse(mapDiv.dataset.departments);
     
-    if (map.getZoom() > 8.5) {
-        myLayer.addTo(map);
+    if (map.getZoom() > 8.5 && !map.hasLayer(farmersLayer)) {
+        map.removeLayer(departmentsLayer);
+        farmersLayer.addTo(map);
+
+            /*fetch('/farmers')
+                .then(res => res.json())
+                .then(data => {
+                    for (let i = 0; i < data.length; i++) {
+                        L.marker([data[i][1], data[i][2]], {icon: farmersIcon}).addTo(farmersLayer)
+                        .bindPopup(data[i][0]);
+                    }
+                })
+                .catch(err => { throw err });*/
+    } else if (map.getZoom() > 6.5 && !map.hasLayer(departmentsLayer)) {
+        map.removeLayer(farmersLayer);
+        departmentsLayer.addTo(map);
+
         for (const index in departments) {
             fetch('https://geo.api.gouv.fr/communes?codePostal='+index+'000&fields=code,nom,centre,departement')
                 .then(res => res.json())
-                .then(data => {L.marker([data[0].centre.coordinates[1], data[0].centre.coordinates[0]], {icon: farmerIcon}).addTo(myLayer)
+                .then(data => {L.marker([data[0].centre.coordinates[1], data[0].centre.coordinates[0]], {icon: departmentIcon}).addTo(departmentsLayer)
                     .bindPopup(departments[index]+' agriculteurs nous font déjà confiance en '+data[0].departement.nom+' !');})
                 .catch(err => { throw err });
         }
-    } else if (map.getZoom() <= 8.5) {
-      map.removeLayer(myLayer);
+    } else if (map.getZoom() <= 6) {
+        map.removeLayer(departmentsLayer);
     }
 });
 

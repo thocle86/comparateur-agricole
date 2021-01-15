@@ -1,3 +1,27 @@
+:root {
+    /*Primary colors*/
+    --info: #337ab7;
+    --warning: #f37f2b;
+    --premium: #e9b537;
+    --danger: #e4454d;
+    --primary: #5a9449;
+
+    /*4 shade of grey*/
+    --black: #2a2a2a;
+    --dark-grey: #565656;
+    --medium-grey: #d6d6d6;
+    --light-grey: #e8e8e8;
+
+    /*font families*/
+    --default-font-family: 'Open sans', 'Lora', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    --header-font-family: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+    /*Font weights*/
+    --bold: 700;
+    --semi-bold: 600;
+    --regular: 400;
+}
+
 body {
     padding: 0;
     margin: 0;
@@ -15,4 +39,29 @@ html, body, #map {
     bottom: 5vw;
     right: 5vw;
     z-index: 1000;
+}
+
+.info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+.info h4 {
+    margin: 0 0 5px;
+    color: #777;
+}
+
+.legend {
+    line-height: 18px;
+    color: #555;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
 }

@@ -41,17 +41,12 @@ class MapController extends AbstractController
     }
 
     /**
-     * @Route("/farmers", name="farmers")
+     * @Route("/farmers/{dep}", name="farmers")
      */
-    public function getFarmers(FarmersRepository $farmersRepo): Response
+    public function getFarmers(FarmersRepository $farmersRepo, int $dep): Response
     {
-        $farmers = $farmersRepo->findAllGroupByCity();
-        $coord = [];
+        $farmers = $farmersRepo->findAllByDepartment($dep);
 
-        for ($i = 0; $i < count($farmers); $i++) {
-            
-        }
-
-        return $this->json($coord, 200);
+        return $this->json($farmers, 200);
     }
 }

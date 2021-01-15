@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Repository\FarmersRepository;
+use App\Repository\BuyersRepository;
 
 class MapController extends AbstractController
 {
@@ -15,7 +16,7 @@ class MapController extends AbstractController
      * @Route("/", name="map")
      * @return Response
      */
-    public function index(FarmersRepository $farmersRepo): Response
+    public function index(FarmersRepository $farmersRepo, BuyersRepository $buyersRepo): Response
     {
         /*$farmers = $farmersRepo->findAll();
         $coord = [];
@@ -45,6 +46,14 @@ class MapController extends AbstractController
             }
         }
 
-        return $this->render("index.html.twig", ['departments' => $departments]);
+        $buyers = $buyersRepo->findAll();
+        $nameBuyers = [];
+        foreach ($buyers as $value) {
+            $nameBuyers = $value->GetName();
+        }
+        
+        return $this->render("test.html.twig", [
+            'departments' => $departments,
+            ]);
     }
 }

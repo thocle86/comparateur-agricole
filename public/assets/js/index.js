@@ -1,6 +1,40 @@
 const mapDiv = document.querySelector('#map');
 const departments = JSON.parse(mapDiv.dataset.departments);
 
+/***BOUTONS DE LOCALISATION___start***/
+//Fonction pour recentrer sur comparateur agricole
+franceEntiere.addEventListener('click', function() {
+    map.setView([46.194671, 1.845875], 5);
+});
+
+//Fonction pour recentrer sur comparateur agricole
+comparateurAgricole.addEventListener('click', function() {
+    map.setView([48.4474968, 1.5363024], 10);
+});
+
+//Fonction de localisation
+myLocate.addEventListener('click', function() {
+    map.locate({setView: true, maxZoom: 16});
+
+    function onLocationFound(e) {
+        var radius = e.accuracy/2;
+
+        L.marker(e.latlng).addTo(map)
+            .bindPopup("Vous êtes ici").openPopup();
+
+        L.circle(e.latlng, radius).addTo(map);
+    }
+    map.on('locationfound', onLocationFound);
+
+    function onLocationError(e) {
+        alert(e.message);
+    }
+
+    map.on('locationerror', onLocationError);
+});
+/***BOUTONS DE LOCALISATION___end***/
+
+
 /***Configuration  de l'API mapBox___start***/
 const mapboxUrl = 'https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}';
 const mapboxAttribution = 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>';
@@ -97,6 +131,10 @@ let map = L.map('map',
     }
 );
 
+//Pointeur sur comparateur agricole
+L.marker([48.4474968, 1.5363024], {icon: comparateurAgricoleIcon}).addTo(map)
+    .bindPopup('Comparateur<br>Agricole.com');
+
 //Ajout des données GeoJson à la carte pour avoir les contours de département
 L.geoJson(geojsonFrance).addTo(map);
 
@@ -129,11 +167,6 @@ function getGrades(number) {
             grades["grade5"];
 }
 
-//
-function getDepartment(feature) {
-    $thisDepartment = feature.properties.code;
-}
-
 //Fonction pour appliquer un style aux départements
 function style(feature) {
     return {
@@ -160,18 +193,22 @@ function highlightFeature(e) {
     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
         layer.bringToFront();
     }
+    /*
     info.update(layer.feature.properties);
+    */
 }
 
 //Fonction pour réinitialiser le style lorsqu'on n'est plus sur le département
 function resetHighlight(e) {
     geojson.resetStyle(e.target);
-    info.update();
+    info.remove();
 }
 
 //Fonction pour faire un zoom lorsqu'on clique sur un département
 function zoomToFeature(e) {
     map.fitBounds(e.target.getBounds());
+    var layer = e.target;
+    info.update(layer.feature.properties);
 }
 
 function onEachFeature(feature, layer) {
@@ -186,6 +223,29 @@ geojson = L.geoJson(geojsonFrance, {
     style: style,
     onEachFeature: onEachFeature
 }).addTo(map);
+
+let legend = L.control({position: 'bottomleft'});
+
+legend.onAdd = function (map) {
+
+    let div = L.DomUtil.create('div', 'info legend'),
+        grades = [200, 150, 100, 50, 0],
+        labels = [];
+
+    
+    div.innerHTML +=
+        '<i style="background:' + getGrades(grades[0] + 1) + '"></i> ' + grades[0] + '+ <br>';
+    for (let i = 0; i < grades.length-1; i++) {
+        div.innerHTML +=
+            '<i style="background:' + getGrades(grades[i] - 1) + '"></i> ' +
+            grades[i] + '&ndash;' + grades[i + 1] + '<br>';
+    }
+
+    return div;
+};
+
+legend.addTo(map);
+
 
 map.on('zoomend', function(ev){
     const mapDiv = document.querySelector('#map');
@@ -211,10 +271,7 @@ map.on('zoomend', function(ev){
     }
 });
 
-//Pointeur sur comparateur agricole
-L.marker([48.4474968, 1.5363024], {icon: comparateurAgricoleIcon}).addTo(map)
-    .bindPopup('Comparateur<br>Agricole.com');
-
+/***INFORMATIONS PAR DEPARTEMENT___start***/
 let info = L.control();
 
 info.onAdd = function (map) {
@@ -226,14 +283,13 @@ info.onAdd = function (map) {
 info.update = function (props) {
     let numberCustomers;
     for (let prop in props) {
-        /*console.log(`props.${prop} = ${props[prop]}`);*/
+        $thisDepartment = props.code;
         for (const index in departments) {
             if (props.code == index) {
                 numberCustomers = departments[index];
             }
         }
     }
-
     this._div.innerHTML = '<h4>Nombre d\'inscrits</h4>' +  (props ?
         '<b>' + props.code + ' - ' + props.nom +'</b><br />' + numberCustomers + ' inscrits à ce jour'
         : 'Passer ou cliquer sur un département');
@@ -251,33 +307,10 @@ info.update = function (props) {
 
 info.addTo(map);
 
-let legend = L.control({position: 'bottomleft'});
+/***INFORMATIONS PAR DEPARTEMENT___end***/
 
-legend.onAdd = function (map) {
 
-    let div = L.DomUtil.create('div', 'info legend'),
-        grades = [200, 150, 100, 50, 0],
-        labels = [];
-
-    
-    div.innerHTML +=
-        '<i style="background:' + getGrades(grades[0] + 1) + '"></i> ' + grades[0] + '+ <br>';
-    for (let i = 0; i < grades.length-1; i++) {
-        div.innerHTML +=
-            '<i style="background:' + getGrades(grades[i] - 1) + '"></i> ' +
-            grades[i] + '&ndash;' + grades[i + 1] + '<br>';
-    }
-
-    return div;
-};
-
-legend.addTo(map);
-
-//Fonction pour recentrer sur comparateur agricole
-comparateurAgricole.addEventListener('click', function() {
-    map.setView([48.4474968, 1.5363024], 10);
-});
-
+/*
 //Objet avec les différents calques sélectionnables dans la vue
 let baseMaps = {
     "DEFAUT": mapDefault,
@@ -289,26 +322,6 @@ let baseMaps = {
 
 //Création du panel de sélection des calques et des villes ou autres
 L.control.layers(baseMaps, overlayMaps).addTo(map);
+*/
 
-/***Fonction de localisation___start***/
-myLocate.addEventListener('click', function() {
-    map.locate({setView: true, maxZoom: 16});
-
-    function onLocationFound(e) {
-        var radius = e.accuracy;
-
-        L.marker(e.latlng).addTo(map)
-            .bindPopup("Vous êtes dans un rayon de " + radius + " m de ce point").openPopup();
-
-        L.circle(e.latlng, radius).addTo(map);
-    }
-    map.on('locationfound', onLocationFound);
-
-    function onLocationError(e) {
-        alert(e.message);
-    }
-
-    map.on('locationerror', onLocationError);
-});
-/***Fonction de localisation___end***/
 
